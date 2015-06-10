@@ -16,7 +16,7 @@ module.exports = function (io, streams) {
         });
 
         client.on('lookup', function () {
-            client.emit('cameraList', streams);
+            client.emit('cameraList', streams.getStreams());
         });
 
 

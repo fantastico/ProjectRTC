@@ -15,24 +15,38 @@ module.exports = function (io, streams) {
             otherClient.emit('message', details);
         });
 
-        client.on('lookup', function () {
-            client.emit('cameraList', streams.getStreams());
+        client.on('call', function (message) {
+            var key = message.key;
+            var to = streams.getStreams()[key];
+            if(!to){
+                return;
+            }
+            var otherClient = io.sockets.connected[to];
+            if (!otherClient) {
+                return;
+            }
+            var details = {};
+            details.from = client.id;
+            details.type = "init";
+            details.message = null;
+            otherClient.emit('message', details);
         });
-
 
         client.on('readyToStream', function (options) {
             console.log('-- ' + client.id + ' is ready to stream --');
-
-            streams.addStream(client.id, options.name);
+            client.key = options.key;
+            streams.addStream(client.id, options.key);
         });
 
         client.on('update', function (options) {
-            streams.update(client.id, options.name);
+            streams.update(client.id, options.key);
         });
 
         function leave() {
             console.log('-- ' + client.id + ' left --');
-            streams.removeStream(client.id);
+            if(client.key){
+                streams.removeStream(client.key);
+            }
         }
 
         client.on('disconnect', leave);

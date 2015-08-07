@@ -59,13 +59,16 @@
             // get list of streams from the server
             $http.get('/streams.json').success(function (data) {
                 // filter own stream
-                var streams = data.filter(function (stream) {
+                /*var streams = data.filter(function (stream) {
                     return stream.id != client.getId();
-                });
+                });*/
+                var streams = [];
                 // get former state
-                for (var i = 0; i < streams.length; i++) {
-                    var stream = getStreamById(streams[i].id);
-                    streams[i].isPlaying = (!!stream) ? stream.isPLaying : false;
+                var k = 0;
+                for (var i in  data) {
+                    var stream = getStreamById(data[i]);
+                    streams[k] = {'name': i, 'id': data[i]};
+                    streams[k].isPlaying = (!!stream) ? stream.isPLaying : false;
                 }
                 // save new streams
                 rtc.remoteStreams = streams;
